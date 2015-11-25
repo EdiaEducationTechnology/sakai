@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project name="Distribution Build" default="dist" basedir=".">
+  <description>
+        This package does an distribution package
+    </description>
+  <!-- VARIABLES -->
+  <property name="package.name"   value="edia-sakai-demo"/>
+  <property name="build.number"   value="0"/>
+
+  <!-- LOCATIONS -->
+  <property name="package.dir" location="/mnt/packages/"/>
+  <property name="deploy.target"  location="/tmp/${package.name}"/>
+  <property name="sakai.config"   location="sakai_config"/>
+
+  <target name="dist" depends="package">
+  </target>
+
+  <target name="package" depends="config">
+    <mkdir dir="${deploy.target}/common/lib"/>
+    <get src="http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.37/mysql-connector-java-5.1.37.jar" 
+         dest="${deploy.target}/common/lib/"
+         />
+    <zip destfile="${package.dir}/${package.name}-build${build.number}.zip" basedir="${deploy.target}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${deploy.target}"/>
+  </target>
+
+  <target name="svnversion">
+    <exec executable="svn">
+       <arg value="upgrade"/>
+    </exec>
+    <exec executable="svnversion" outputproperty="svnversion"/>
+    <echo message="SVN Version: ${svnversion}"/>
+  </target>
+
+  <target name="config" depends="svnversion">
+    <mkdir dir="${deploy.target}/sakai"/>
+    <copy todir="${deploy.target}/sakai">
+      <fileset dir="${sakai.config}"/>
+    </copy>
+    <replace dir="${deploy.target}/sakai" value="${build.number}">
+      <replacetoken>BUILD_NUMBER</replacetoken>
+    </replace>
+  </target>
+</project>
