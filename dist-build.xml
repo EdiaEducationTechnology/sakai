@@ -27,15 +27,7 @@
     <delete dir="${deploy.target}"/>
   </target>
 
-  <target name="svnversion">
-    <exec executable="svn">
-       <arg value="upgrade"/>
-    </exec>
-    <exec executable="svnversion" outputproperty="svnversion"/>
-    <echo message="SVN Version: ${svnversion}"/>
-  </target>
-
-  <target name="config" depends="svnversion">
+  <target name="config">
     <mkdir dir="${deploy.target}/sakai"/>
     <copy todir="${deploy.target}/sakai">
       <fileset dir="${sakai.config}"/>
