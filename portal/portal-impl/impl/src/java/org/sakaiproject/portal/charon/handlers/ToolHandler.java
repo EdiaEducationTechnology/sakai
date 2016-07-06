@@ -175,6 +175,18 @@ public class ToolHandler extends BasePortalHandler
 				return;
 			}
 		}
+		else if (tool.getAccessSecurity() == Tool.AccessSecurity.TOOL)
+		{
+			try
+			{
+				site = SiteService.getSite(siteTool.getSiteId());
+			}
+			catch (IdUnusedException e)
+			{
+				portal.doError(req, res, session, Portal.ERROR_WORKSITE);
+				return;
+			}
+		}
 
 		// Check to see if the tool is visible
 		if(!ToolManager.isVisible(site, siteTool)) {
