@@ -88,6 +88,7 @@ import org.sakaiproject.portal.charon.handlers.SiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.StaticScriptsHandler;
 import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.TimeoutDialogHandler;
+import org.sakaiproject.portal.charon.handlers.TokenLoginHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
 import org.sakaiproject.portal.charon.handlers.PageResetHandler;
@@ -942,6 +943,49 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String context = req.getContextPath() + req.getServletPath() + loginPath;
 		
 		tool.help(req, res, context, loginPath);
+	}
+
+	public void doTokenLogin(HttpServletRequest req, HttpServletResponse res, Session session,
+							 String returnPath, boolean skipContainer, String[] parts) throws ToolException {
+		try
+		{
+			if (basicAuth.doAuth(req, res))
+			{
+				// System.err.println("BASIC Auth Request Sent to the Browser
+				// ");
+				return;
+			}
+		}
+		catch (IOException ioex)
+		{
+			throw new ToolException(ioex);
+
+		}
+		// setup for the helper if needed (Note: in session, not tool session,
+		// special for Login helper)
+		// Note: always set this if we are passed in a return path... a blank
+		// return path is valid... to clean up from
+		// possible abandened previous login attempt -ggolden
+		if (returnPath != null)
+		{
+			// where to go after
+			String returnUrl = Web.returnUrl(req, returnPath);
+			if (req.getQueryString() != null )
+				returnUrl += "?"+req.getQueryString();
+			session.setAttribute(Tool.HELPER_DONE_URL, returnUrl);
+		}
+
+		ActiveTool tool = ActiveToolManager.getActiveTool("edia.sakai.token.login");
+		if (tool == null) {
+			throw new ToolException("Cannot locate tool with edia.sakai.token.login");
+		}
+
+		// to skip container auth for this one, forcing things to be handled
+		// internaly, set the "extreme" login path
+
+		String toolPath = Web.makePath(parts, 2, parts.length);
+		String context = req.getContextPath() + req.getServletPath() + toolPath;
+		tool.help(req, res, context, toolPath);
 	}
 
 	/**
@@ -2010,6 +2054,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new HelpHandler());
 		addHandler(new ReLoginHandler());
 		addHandler(new LoginHandler());
+		addHandler(new TokenLoginHandler());
 		addHandler(new XLoginHandler());
 		addHandler(new LogoutHandler());
 		addHandler(new ErrorDoneHandler());

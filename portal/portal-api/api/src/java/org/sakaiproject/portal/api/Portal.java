@@ -405,4 +405,8 @@ public interface Portal
          */
         public Cookie findCookie(HttpServletRequest req, String name);
 
+
+
+	void doTokenLogin(HttpServletRequest req, HttpServletResponse res, Session session, String string, boolean b, String[] parts) throws ToolException;
+
 }
