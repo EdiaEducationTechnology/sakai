@@ -21,6 +21,8 @@
 
 package org.sakaiproject.portal.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -180,7 +182,11 @@ public class ToolUtils
 		String portalPrefix, boolean reset, String effectiveSiteId, String pageAlias)
 	{
 		if ( req == null ) req = getRequestFromThreadLocal();
-		if ( effectiveSiteId == null ) effectiveSiteId = site.getId();
+		if ( effectiveSiteId == null ) try {
+			effectiveSiteId = URLEncoder.encode(site.getId(), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 		if ( pageAlias == null ) pageAlias = page.getId();
 
 		// The normal URL
